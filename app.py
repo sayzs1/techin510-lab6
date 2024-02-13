@@ -5,6 +5,9 @@ import streamlit as st
 from llama_index.core import VectorStoreIndex
 from llama_index.llms.openai import OpenAI
 from llama_index.readers.file import PDFReader
+from dotenv import load_dotenv
+
+load_dotenv()
 
 st.set_page_config(
     page_title="Chat with the PDF",
