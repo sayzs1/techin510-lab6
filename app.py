@@ -17,39 +17,36 @@ st.set_page_config(
     menu_items=None,
 )
 
-if "messages" not in st.session_state.keys():  # Initialize the chat messages history
+if "messages" not in st.session_state.keys():
     st.session_state.messages = [
-        {"role": "assistant", "content": "Ask me a question about your document!"}
+        {"role": "assistant", "content": "Welcome to the AI Resume Feedback Bot! Please upload your resume for feedback."}
     ]
 
-uploaded_file = st.file_uploader("Upload a file")
+uploaded_file = st.file_uploader("Upload your resume (PDF or other supported format)")
+
 if uploaded_file:
     bytes_data = uploaded_file.read()
-    with NamedTemporaryFile(delete=False) as tmp:  # open a named temporary file
-        tmp.write(bytes_data)  # write data from the uploaded file into it
-        with st.spinner(
-            text="Loading and indexing the Streamlit docs – hang tight! This should take 1-2 minutes."
-        ):
+    with NamedTemporaryFile(delete=False) as tmp:
+        tmp.write(bytes_data)
+        with st.spinner("Analyzing your resume. Please wait..."):
             reader = PDFReader()
-            docs = reader.load_data(tmp.name)
+            resume_data = reader.load_data(tmp.name)
             llm = OpenAI(
                 api_key=os.getenv("OPENAI_API_KEY"),
                 base_url=os.getenv("OPENAI_API_BASE"),
                 model="gpt-3.5-turbo",
                 temperature=0.0,
-                system_prompt="You are an expert on the content of the document, provide detailed answers to the questions. Use the document to support your answers.",
+                system_prompt="You are an expert in resume analysis. Provide constructive feedback to the user's resume.",
             )
-            index = VectorStoreIndex.from_documents(docs)
-    os.remove(tmp.name)  # remove temp file
+            index = VectorStoreIndex.from_documents(resume_data)
+    os.remove(tmp.name)
 
     if "chat_engine" not in st.session_state.keys():  # Initialize the chat engine
         st.session_state.chat_engine = index.as_chat_engine(
             chat_mode="condense_question", verbose=False, llm=llm
         )
 
-if prompt := st.chat_input(
-    "Your question"
-):  # Prompt for user input and save to chat history
+if prompt := st.chat_input("Ask for feedback on your resume"):
     st.session_state.messages.append({"role": "user", "content": prompt})
 
 for message in st.session_state.messages:  # Display the prior chat messages
