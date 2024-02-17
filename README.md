@@ -1,10 +1,10 @@
 # Lab 6 - Chat with PDF
-link to app: https://510resumeassistant.azurewebsites.net/
+
 ## Overview
 This app is an AI Resume feedback bot, you can upload resume and get feedback
 app.py: main script for the assistant app using LLM
 
-## Getting Started
+## How to run it
 1. `python -m venv venv`
 1. `venv\Scripts\Activate.ps1`( for windows system)
 1. `pip install -r requirements.txt`
